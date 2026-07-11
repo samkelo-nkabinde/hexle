@@ -1,6 +1,6 @@
 pub mod hexle;
 use hexle::*;
-use eframe::*;
+use eframe::egui::*;
 use catppuccin_egui as cp;
 
 struct Hexle {
@@ -20,6 +20,24 @@ fn main() -> eframe::Result<()> {
     )
 }
 
+trait ThemeName {
+    fn get_name(&self) -> String;
+}
+
+impl ThemeName for cp::Theme {
+    fn get_name(&self) -> String {
+        String::from(
+            match *self {
+                cp::FRAPPE => "Frappé",
+                cp::MOCHA => "Mocha",
+                cp::LATTE => "Latte",
+                cp::MACCHIATO => "Macchiato",
+                _ => ""
+            }
+        )
+    }
+}
+
 impl Hexle {
     fn new() -> Self {
         Self {
@@ -32,13 +50,13 @@ impl Hexle {
 }
 
 impl eframe::App for Hexle {
-    fn update(&mut self, context: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, context: &Context, _frame: &mut eframe::Frame) {
         cp::set_theme(context, self.theme);
         self.about(&context);
         
-        egui::CentralPanel::default().show(
+        CentralPanel::default().show(
             context, |ui| {
-                egui::ScrollArea::vertical().show(
+                ScrollArea::vertical().show(
                     ui, |ui| {
                     self.header(ui);
                     ui.separator();
@@ -49,23 +67,23 @@ impl eframe::App for Hexle {
 }
 
 impl Hexle {
-    fn header(&mut self, ui: &mut egui::Ui) {
+    fn header(&mut self, ui: &mut Ui) {
         ui.vertical_centered(|ui| {
             
             // main game title
-            let title_text = egui::RichText::new("HEXLE")
+            let title_text = RichText::new("HEXLE")
                 .heading()
                 .size(30.0);
             
             // set the title to be clickable
-            let title_lablel = egui::Label::new(title_text)
-                .sense(egui::Sense::click());
+            let title_lablel = Label::new(title_text)
+                .sense(Sense::click());
             
             // get when the title is clicked
             let response = ui.add(title_lablel);
 
             if response.hovered() {
-                ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                ui.ctx().set_cursor_icon(CursorIcon::PointingHand);
             }
 
             // show about  window
@@ -73,37 +91,42 @@ impl Hexle {
                 self.about_window = true;
             }
 
-            ui.add_space(10.0);
-
             // theme widget
             self.select_theme(ui);
              });
     }
     
-    fn select_theme(&mut self, ui: &mut egui::Ui) {
+    fn select_theme(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
-           ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),
+        
+           ui.label(RichText::new(format!("Turns: {}", self.board.get_turn_count())).size(15.0));
+           
+           ui.with_layout(Layout::right_to_left(Align::Center),
                |ui| {
-                   egui::ComboBox::from_id_salt("THEME_OPTIONS") // ID for theme widgit
-                   .selected_text("Theme")
+                     
+                   // combination box widget for themes
+                   ComboBox::from_id_salt("THEME_OPTIONS") // ID for theme widgit
+                   .selected_text(self.theme.get_name()) // display current theme name
                    .show_ui(ui, |ui| {
                        ui.selectable_value(&mut self.theme, cp::LATTE, "Latte (Light)");
                        ui.selectable_value(&mut self.theme, cp::FRAPPE, "Frappé");
                        ui.selectable_value(&mut self.theme, cp::MOCHA, "Mocha");
                        ui.selectable_value(&mut self.theme, cp::MACCHIATO, "Macchiato");
-                });
+                    });
+
+                    ui.label(RichText::new("Theme").size(15.0));
             }); 
         });
     }
     
-    fn about(&mut self, context: &egui::Context) {
-        egui::Window::new("About")
+    fn about(&mut self, context: &Context) {
+        Window::new("About")
         .open(&mut self.about_window) // pop window up if about is true
         .collapsible(false)
         .resizable(true)
-        .default_size(egui::vec2(400.0, 300.0 )) // 4:3 aspect ratio
+        .default_size(vec2(300.0, 400.0 )) // 3:4 aspect ratio
         .show(context, |ui| {
-            ui.label(egui::RichText::new("Hexle")
+            ui.label(RichText::new("Hexle")
                 .heading()
                 .size(18.0)
                 .strong());
@@ -116,11 +139,11 @@ impl Hexle {
             ui.add_space(20.0);
             
             ui.horizontal(|ui| {
-                ui.add_space((ui.available_width() - 150.0)/2.0);
+                ui.add_space((ui.available_width() - 100.0)/2.0);
                 ui.label("Inspired by:");
-                ui.hyperlink_to("Jordan", "https://hexle.vercel.app/");
+                ui.hyperlink_to("Jordan's version", "https://hexle.vercel.app/");
                 ui.label("and");
-                ui.hyperlink_to("James", "https://jamesl.me/hexle/index.html")
+                ui.hyperlink_to("James' version", "https://jamesl.me/hexle/index.html")
             });
 
             ui.horizontal(|ui| {

@@ -63,7 +63,11 @@ impl Board {
     pub fn out_of_attempts(&self) -> bool {
         self.attempt_count >= self.max_attempts 
     }
-
+    
+    pub fn get_turn_count(&self) -> usize {
+        self.attempt_count
+    }
+    
     pub fn parse_attempt(&mut self, input: &str) -> Result<(), &'static str> {
         let input_tokens: Vec<char> = input.split_whitespace()
                                            .map(|c| c.chars().next().unwrap())
