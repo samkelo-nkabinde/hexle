@@ -80,6 +80,7 @@ impl Board {
     pub fn get_turn_count(&self) -> usize {
         self.attempt_count
     }
+    
     pub fn get_target(&self) -> String {
         let mut target: String = String::new();
         
@@ -88,7 +89,8 @@ impl Board {
         }
 
         target       
-    }    
+    }  
+    
     pub fn parse_attempt(&mut self, input: &str) -> Result<(), &'static str> {
         let input_tokens: Vec<char> = input.split_whitespace()
                                            .map(|c| c.chars().next().unwrap())
