@@ -6,8 +6,9 @@ use catppuccin_egui as cp;
 struct Hexle {
     theme: cp::Theme,
     board: Board,
-    error_message: String,
-    about_window: bool
+    result_window: bool,
+    about_window: bool,
+    correct: bool, 
 }
 
 
@@ -43,16 +44,30 @@ impl Hexle {
         Self {
             theme: cp::MOCHA,
             board: Board::new(),
-            error_message: String::new(),
-            about_window: false
+            about_window: false,
+            result_window: false,
+            correct: false,
         }
     }
+
+    // fn open_result_window(&mut self) -> bool {
+    //     if self.correct {
+    //         self.result = true;
+    //     }
+    //     else if self.board.out_of_attempts() {
+    //         self.result_window = true;
+    //     }
+    //     else {
+    //         self.result_window = false
+    //     }
+    // }
 }
 
 impl eframe::App for Hexle {
     fn update(&mut self, context: &Context, _frame: &mut eframe::Frame) {
         cp::set_theme(context, self.theme);
-        self.about(&context);
+        self.display_about_window(&context);
+        self.display_results_window(&context);
         
         CentralPanel::default().show(
             context, |ui| {
@@ -118,8 +133,29 @@ impl Hexle {
             }); 
         });
     }
+
+    fn display_results_window(&mut self, context: &Context) {
+        let window_size = vec2(300.0, 400.0);
+        let center = context.content_rect().center();
+        
+        Window::new("Results")
+        .open(&mut self.result_window)
+        .collapsible(false)
+        .resizable(false)
+        .default_pos(center)
+        .pivot(Align2::CENTER_CENTER)
+        .default_size(window_size)
+        .show(context, |ui| {
+            if self.correct {
+                ui.label(RichText::new("Congradulations! you got it").size(15.0));
+            }
+            else {
+                ui.label(RichText::new(format!("You are of attempts!\nThe answer was: {}", self.board.get_target())).size(15.0));
+            }
+        }); 
+    }
     
-    fn about(&mut self, context: &Context) {
+    fn display_about_window(&mut self, context: &Context) {
         Window::new("About")
         .open(&mut self.about_window) // pop window up if about is true
         .collapsible(false)
@@ -159,34 +195,3 @@ impl Hexle {
 
 
 
-// use std::io::{self, Write};
-
-
-// fn main() {
-//     let mut hexle = Board::new();
-//     let mut input: String = String::new();
-
-//     println!("Try your luck!");
-
-//     loop {
-//         if hexle.out_of_attempts() {
-//             break; 
-//         }
-
-//         print!("Enter your guess: ");
-//         io::stdout().flush().unwrap();
-
-//         io::stdin().read_line(&mut input).expect("Failed to read user input");
-        
-//         if let Err(err) = hexle.parse_attempt(&input) {
-//             println!("Error: {}", err);
-//             input.clear();
-//             continue;
-//         }
-
-//         print!("{}", hexle);
-//         io::stdout().flush().unwrap();
-
-//         input.clear();
-//     }
-// }
