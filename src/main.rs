@@ -76,6 +76,43 @@ impl eframe::App for Hexle {
                     self.header(ui);
                     ui.separator();
                     ui.add_space(10.0);
+                    
+
+                    Grid::new("my_single_row_grid")
+    .spacing([10.0, 4.0]) // [x_spacing, y_spacing]
+    .show(ui, |ui| {
+        // Column 1
+            let square_size = (ui.available_height() / 9.0) - 10.0;
+
+            // 9 squares of square size and 3 spaces of 2.0 width
+            let adjust = ((9.0 * square_size) + 9.0) / 2.0;
+
+            // This sets the initial position of the grid
+            let initial_position = Pos2::new(
+                // Using some pretty basic logic we just get the center and subtract by adjust
+                ui.available_width() / 2.0 - adjust,
+                // Doing the same here but we need to make sure we have the correct starting position
+                ui.next_widget_position().y + ui.available_height() / 2.0 - adjust,
+            );
+
+            // This is going to be our position that we continually update as we move through the grid
+            let mut pos = initial_position;
+            
+        let rect = Rect::from_two_pos(pos, pos + vec2(square_size, square_size));
+        let response = ui.allocate_rect(rect, Sense::click());
+
+        // Check for clicks
+        if response.clicked() {
+            println!("The user clicked the square!");
+        }
+
+        // You can also check for hover states to change colors
+        if response.hovered() {
+            // Maybe draw a highlight over the square
+        }
+        // Finish the row
+        ui.end_row(); 
+    });
                 });
          });
     }
@@ -173,9 +210,9 @@ impl Hexle {
             ui.label("Green means the digit is correct");
             ui.label("Yellow means the digit is correct but in the wrong position");
             ui.add_space(20.0);
-            
+                     
             ui.horizontal(|ui| {
-                ui.add_space((ui.available_width() - 100.0)/2.0);
+                ui.add_space((ui.available_width() - 150.0)/2.0);
                 ui.label("Inspired by:");
                 ui.hyperlink_to("Jordan's version", "https://hexle.vercel.app/");
                 ui.label("and");
