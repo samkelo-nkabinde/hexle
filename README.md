@@ -1,7 +1,10 @@
 # Hexle
  
 A Wordle-style game written in Rust with [egui](https://github.com/emilk/egui), themed with [Catppuccin](https://github.com/catppuccin/egui). Instead of a five-letter word, you guess a **6-digit hexadecimal number** (digits `0-9` and `A-F`) in **6 attempts**.
- 
+
+![image](Screenshot.png)
+
+
 ## How to play
  
 - Type six hex digits (e.g. `3FA09C`) and press **Enter** or click **Guess**.
